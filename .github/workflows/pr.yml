@@ -1,7 +1,15 @@
 name: PR
 
+# CI enabled after fork workflow approval
+
 on:
   pull_request:
+  push:
+    branches:
+      - feature/adaptive-upscaling
+
+permissions:
+  contents: write
 
 defaults:
   run:
@@ -34,6 +42,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0 # Need the tags to build
+      # Forks may not copy upstream release tags. Gradle uses these tags for
+      # versionName/versionCode and git describe fails without an ancestor tag.
+      - name: Fetch upstream release tags
+        run: |
+          git fetch --force --no-recurse-submodules https://github.com/damontecres/Wholphin.git '+refs/tags/v*:refs/tags/v*'
+          git describe --tags --long --match='v*'
       - name: Setup
         uses: ./.github/actions/setup
       - name: Build app
@@ -42,3 +56,48 @@ jobs:
           ./gradlew clean assembleDefaultDebug testDefaultDebugUnitTest --no-daemon
           apks=$(find app/build/outputs \( -name '*.apk' -or -name '*.aab' \) -print0 | tr '\0' ',' | sed 's/,$//')
           echo "apks=$apks" >> "$GITHUB_OUTPUT"
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: wholphin-adaptive-upscaling-debug
+          path: app/build/outputs/apk/default/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish installable dev pre-release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mapfile -t debug_apks < <(find app/build/outputs/apk/default/debug -maxdepth 1 -type f -name '*.apk' -print)
+          if [[ ${#debug_apks[@]} -eq 0 ]]; then
+            echo "No debug APK found" >&2
+            exit 1
+          fi
+
+          universal_apk=""
+          for apk in "${debug_apks[@]}"; do
+            if [[ "$(basename "$apk")" == *-universal.apk ]]; then
+              universal_apk="$apk"
+              break
+            fi
+          done
+
+          if [[ -z "$universal_apk" && ${#debug_apks[@]} -eq 1 ]]; then
+            universal_apk="${debug_apks[0]}"
+          fi
+
+          if [[ -z "$universal_apk" ]]; then
+            echo "Multiple debug APKs found but no universal APK could be identified:" >&2
+            printf '  %s\n' "${debug_apks[@]}" >&2
+            exit 1
+          fi
+
+          echo "Publishing $(basename "$universal_apk")"
+          cp "$universal_apk" Wholphin-Upscaling-Dev.apk
+          gh release delete upscaling-dev --cleanup-tag --yes || true
+          git push origin :refs/tags/upscaling-dev || true
+          gh release create upscaling-dev Wholphin-Upscaling-Dev.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Wholphin Upscaling Dev" \
+            --notes "Automated experimental build from feature/adaptive-upscaling. Not for production use."
