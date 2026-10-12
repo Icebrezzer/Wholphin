@@ -39,11 +39,13 @@ object UpscalingPolicy {
         }
 
         return when (requestedMode) {
-            VideoUpscalingMode.UPSCALING_ANIME4K ->
+            VideoUpscalingMode.UPSCALING_ANIME4K -> {
                 UpscalingDecision.Enabled(UpscalingPipeline.ANIME4K, "Anime4K selected by user")
+            }
 
-            VideoUpscalingMode.UPSCALING_GENERAL ->
+            VideoUpscalingMode.UPSCALING_GENERAL -> {
                 UpscalingDecision.Enabled(UpscalingPipeline.GENERAL_VIDEO, "general video upscaling selected by user")
+            }
 
             VideoUpscalingMode.UPSCALING_AUTO -> {
                 if (video.frameRate > 30f && capabilities.performanceClass != UpscalingPerformanceClass.HIGH) {
@@ -55,7 +57,9 @@ object UpscalingPolicy {
                 }
             }
 
-            else -> UpscalingDecision.Disabled("unsupported upscaling mode")
+            else -> {
+                UpscalingDecision.Disabled("unsupported upscaling mode")
+            }
         }
     }
 }
