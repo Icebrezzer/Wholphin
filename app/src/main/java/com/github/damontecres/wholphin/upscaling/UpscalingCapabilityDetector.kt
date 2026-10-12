@@ -32,12 +32,15 @@ class UpscalingCapabilityDetector
                     !supportsGlEs31 -> {
                         UpscalingPerformanceClass.LOW
                     }
+
                     Build.VERSION.SDK_INT >= 31 && totalMemoryGb >= 5.0 && cores >= 6 -> {
                         UpscalingPerformanceClass.HIGH
                     }
+
                     totalMemoryGb >= 2.0 && cores >= 4 -> {
                         UpscalingPerformanceClass.MEDIUM
                     }
+
                     else -> {
                         UpscalingPerformanceClass.LOW
                     }
