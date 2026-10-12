@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Wholphin (Debug)</string>
+    <string name="app_name" translatable="false">Wholphin Upscaling Dev</string>
+    <string name="app_name_long" translatable="false">Wholphin Upscaling Dev</string>
 </resources>
