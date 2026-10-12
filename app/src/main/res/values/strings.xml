@@ -957,11 +957,11 @@
     <string-array name="video_upscaling_modes">
         <item>Off</item>
         <item>Automatic</item>
-        <item>Anime4K</item>
+        <item>GPU pipeline test (no Anime4K yet)</item>
     </string-array>
     <string-array name="video_upscaling_modes_summary">
         <item>Use the normal video renderer</item>
-        <item>Select a safe upscaling path based on the device and video</item>
-        <item>Prefer the Anime4K GPU shader pipeline when supported</item>
+        <item>Reserved for adaptive upscaling; currently uses normal playback</item>
+        <item>Diagnostic identity GPU effect; does not sharpen or upscale video yet</item>
     </string-array>
 </resources>
