@@ -42,13 +42,16 @@ object UpscalingPolicy {
             VideoUpscalingMode.UPSCALING_ANIME4K ->
                 UpscalingDecision.Enabled(UpscalingPipeline.ANIME4K, "Anime4K selected by user")
 
+            VideoUpscalingMode.UPSCALING_GENERAL ->
+                UpscalingDecision.Enabled(UpscalingPipeline.GENERAL_VIDEO, "general video upscaling selected by user")
+
             VideoUpscalingMode.UPSCALING_AUTO -> {
-                if (!video.isLikelyAnime) {
-                    UpscalingDecision.Disabled("AUTO did not classify the video as anime")
-                } else if (video.frameRate > 30f && capabilities.performanceClass != UpscalingPerformanceClass.HIGH) {
+                if (video.frameRate > 30f && capabilities.performanceClass != UpscalingPerformanceClass.HIGH) {
                     UpscalingDecision.Disabled("high frame-rate video exceeds the safe device budget")
-                } else {
+                } else if (video.isLikelyAnime) {
                     UpscalingDecision.Enabled(UpscalingPipeline.ANIME4K, "AUTO selected Anime4K")
+                } else {
+                    UpscalingDecision.Enabled(UpscalingPipeline.GENERAL_VIDEO, "AUTO selected general video upscaling")
                 }
             }
 
@@ -59,6 +62,7 @@ object UpscalingPolicy {
 
 enum class UpscalingPipeline {
     ANIME4K,
+    GENERAL_VIDEO,
 }
 
 enum class UpscalingPerformanceClass {
