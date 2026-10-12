@@ -958,10 +958,12 @@
         <item>Off</item>
         <item>Automatic</item>
         <item>GPU pipeline test (no Anime4K yet)</item>
+        <item>Movies &amp; series</item>
     </string-array>
     <string-array name="video_upscaling_modes_summary">
         <item>Use the normal video renderer</item>
         <item>Reserved for adaptive upscaling; currently uses normal playback</item>
         <item>Diagnostic identity GPU effect; does not sharpen or upscale video yet</item>
+        <item>Use the general video upscaling pipeline for live-action content</item>
     </string-array>
 </resources>
