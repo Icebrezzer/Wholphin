@@ -14,6 +14,7 @@ import androidx.media3.common.util.ExperimentalApi
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
+import androidx.media3.effect.ScaleAndRotateTransformation
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.Renderer
@@ -30,6 +31,7 @@ import com.github.damontecres.wholphin.preferences.AppPreferences
 import com.github.damontecres.wholphin.preferences.AssPlaybackMode
 import com.github.damontecres.wholphin.preferences.MediaExtensionStatus
 import com.github.damontecres.wholphin.preferences.PlayerBackend
+import com.github.damontecres.wholphin.preferences.VideoUpscalingMode
 import com.github.damontecres.wholphin.preferences.get
 import com.github.damontecres.wholphin.services.hilt.AuthOkHttpClient
 import com.github.damontecres.wholphin.util.BitstreamFilteringCodecAdapterFactory
@@ -155,6 +157,29 @@ class PlayerFactory
                             .build()
                             .apply {
                                 assHandler?.init(this)
+                                // Diagnostic GPU pass-through only. This is NOT Anime4K yet.
+                                // AUTO remains disabled until video classification and frame timing
+                                // are connected to the real playback pipeline.
+                                val diagnosticEffectEnabled =
+                                    appPreferences.experimentalPreferences.enabled &&
+                                        appPreferences.experimentalPreferences.videoUpscalingMode ==
+                                        VideoUpscalingMode.UPSCALING_ANIME4K
+                                if (diagnosticEffectEnabled) {
+                                    try {
+                                        setVideoEffects(
+                                            listOf(
+                                                ScaleAndRotateTransformation
+                                                    .Builder()
+                                                    .setScale(1f, 1f)
+                                                    .build(),
+                                            ),
+                                        )
+                                        Timber.i("Experimental Media3 GPU pass-through effect configured")
+                                    } catch (e: RuntimeException) {
+                                        Timber.w(e, "GPU effect setup failed; continuing with normal video output")
+                                        setVideoEffects(emptyList())
+                                    }
+                                }
                                 withContext(WholphinDispatchers.Main) {
                                     setAudioAttributes(
                                         AudioAttributes
