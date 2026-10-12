@@ -37,6 +37,12 @@ enum PlayerBackend{
   EXTERNAL_PLAYER = 3;
 }
 
+enum VideoUpscalingMode {
+  UPSCALING_OFF = 0;
+  UPSCALING_AUTO = 1;
+  UPSCALING_ANIME4K = 2;
+}
+
 message MpvOptions{
   bool enable_hardware_decoding = 1;
   bool use_gpu_next = 2;
@@ -230,6 +236,7 @@ message ExperimentalPreferences {
   bool prefer_ac3_surround = 3;
   bool disable_audio_offload = 4;
   bool prefer_dolby_vision_over_hdr10_plus = 5;
+  VideoUpscalingMode video_upscaling_mode = 6;
 }
 
 message AppPreferences {
