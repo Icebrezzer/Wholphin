@@ -41,6 +41,7 @@ enum VideoUpscalingMode {
   UPSCALING_OFF = 0;
   UPSCALING_AUTO = 1;
   UPSCALING_ANIME4K = 2;
+  UPSCALING_GENERAL = 3;
 }
 
 message MpvOptions{
