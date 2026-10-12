@@ -39,7 +39,7 @@ class UpscalingPolicyTest {
     }
 
     @Test
-    fun autoDoesNotUpscaleLiveAction() {
+    fun autoSelectsGeneralPipelineForLiveAction() {
         val decision =
             UpscalingPolicy.resolve(
                 VideoUpscalingMode.UPSCALING_AUTO,
@@ -47,7 +47,21 @@ class UpscalingPolicyTest {
                 video(isAnime = false),
                 PlayerBackend.EXO_PLAYER,
             )
-        assertTrue(decision is UpscalingDecision.Disabled)
+        assertTrue(decision is UpscalingDecision.Enabled)
+        assertEquals(UpscalingPipeline.GENERAL_VIDEO, (decision as UpscalingDecision.Enabled).pipeline)
+    }
+
+    @Test
+    fun generalModeSelectsGeneralPipeline() {
+        val decision =
+            UpscalingPolicy.resolve(
+                VideoUpscalingMode.UPSCALING_GENERAL,
+                capable,
+                video(isAnime = false),
+                PlayerBackend.EXO_PLAYER,
+            )
+        assertTrue(decision is UpscalingDecision.Enabled)
+        assertEquals(UpscalingPipeline.GENERAL_VIDEO, (decision as UpscalingDecision.Enabled).pipeline)
     }
 
     @Test
