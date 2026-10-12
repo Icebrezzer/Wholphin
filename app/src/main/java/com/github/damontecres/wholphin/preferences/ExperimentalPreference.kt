@@ -72,6 +72,22 @@ object ExperimentalPreference {
             },
         )
 
+    val VideoUpscaling =
+        AppChoicePreference<AppPreferences, VideoUpscalingMode>(
+            title = R.string.video_upscaling,
+            defaultValue = VideoUpscalingMode.UPSCALING_OFF,
+            getter = { it.experimentalPreferences.videoUpscalingMode },
+            setter = { prefs, value ->
+                prefs.updateExperimentalPreferences { videoUpscalingMode = value }
+            },
+            displayValues = R.array.video_upscaling_modes,
+            subtitles = R.array.video_upscaling_modes_summary,
+            indexToValue = { VideoUpscalingMode.forNumber(it) ?: VideoUpscalingMode.UPSCALING_OFF },
+            valueToIndex = {
+                if (it != VideoUpscalingMode.UNRECOGNIZED) it.number else VideoUpscalingMode.UPSCALING_OFF.number
+            },
+        )
+
     val DisableAudioOffload =
         AppSwitchPreference<AppPreferences>(
             title = R.string.disable_audio_offload,
@@ -95,6 +111,7 @@ val experimentalPreferences =
                         ExperimentalPreference.PreferDolbyVisionOverHdr10Plus,
                         ExperimentalPreference.PreferAc3ForSurround,
                         ExperimentalPreference.DisableAudioOffload,
+                        ExperimentalPreference.VideoUpscaling,
                     ),
             ),
         )
