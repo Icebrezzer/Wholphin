@@ -951,4 +951,17 @@
         <item quantity="one">%1$d Episode</item>
         <item quantity="other">%1$d Episodes</item>
     </plurals>
+
+    <!-- Adaptive video upscaling (experimental) -->
+    <string name="video_upscaling">Video upscaling (experimental)</string>
+    <string-array name="video_upscaling_modes">
+        <item>Off</item>
+        <item>Automatic</item>
+        <item>Anime4K</item>
+    </string-array>
+    <string-array name="video_upscaling_modes_summary">
+        <item>Use the normal video renderer</item>
+        <item>Select a safe upscaling path based on the device and video</item>
+        <item>Prefer the Anime4K GPU shader pipeline when supported</item>
+    </string-array>
 </resources>
