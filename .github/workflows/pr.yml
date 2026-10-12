@@ -8,6 +8,9 @@ on:
     branches:
       - feature/adaptive-upscaling
 
+permissions:
+  contents: write
+
 defaults:
   run:
     shell: bash
@@ -60,3 +63,21 @@ jobs:
           path: app/build/outputs/apk/default/debug/*.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Publish installable dev pre-release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          universal_apk=$(find app/build/outputs/apk/default/debug -maxdepth 1 -name '*-universal.apk' -print -quit)
+          if [[ -z "$universal_apk" ]]; then
+            echo "Universal debug APK not found" >&2
+            exit 1
+          fi
+          cp "$universal_apk" Wholphin-Upscaling-Dev.apk
+          gh release delete upscaling-dev --cleanup-tag --yes || true
+          git push origin :refs/tags/upscaling-dev || true
+          gh release create upscaling-dev Wholphin-Upscaling-Dev.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Wholphin Upscaling Dev" \
+            --notes "Automated experimental build from feature/adaptive-upscaling. Not for production use."
