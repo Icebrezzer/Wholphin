@@ -68,11 +68,31 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          universal_apk=$(find app/build/outputs/apk/default/debug -maxdepth 1 -name '*-universal.apk' -print -quit)
-          if [[ -z "$universal_apk" ]]; then
-            echo "Universal debug APK not found" >&2
+          mapfile -t debug_apks < <(find app/build/outputs/apk/default/debug -maxdepth 1 -type f -name '*.apk' -print)
+          if [[ ${#debug_apks[@]} -eq 0 ]]; then
+            echo "No debug APK found" >&2
             exit 1
           fi
+
+          universal_apk=""
+          for apk in "${debug_apks[@]}"; do
+            if [[ "$(basename "$apk")" == *-universal.apk ]]; then
+              universal_apk="$apk"
+              break
+            fi
+          done
+
+          if [[ -z "$universal_apk" && ${#debug_apks[@]} -eq 1 ]]; then
+            universal_apk="${debug_apks[0]}"
+          fi
+
+          if [[ -z "$universal_apk" ]]; then
+            echo "Multiple debug APKs found but no universal APK could be identified:" >&2
+            printf '  %s\n' "${debug_apks[@]}" >&2
+            exit 1
+          fi
+
+          echo "Publishing $(basename "$universal_apk")"
           cp "$universal_apk" Wholphin-Upscaling-Dev.apk
           gh release delete upscaling-dev --cleanup-tag --yes || true
           git push origin :refs/tags/upscaling-dev || true
