@@ -39,6 +39,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0 # Need the tags to build
+      # Forks may not copy upstream release tags. Gradle uses these tags for
+      # versionName/versionCode and git describe fails without an ancestor tag.
+      - name: Fetch upstream release tags
+        run: |
+          git fetch --force --no-recurse-submodules https://github.com/damontecres/Wholphin.git '+refs/tags/v*:refs/tags/v*'
+          git describe --tags --long --match='v*'
       - name: Setup
         uses: ./.github/actions/setup
       - name: Build app
