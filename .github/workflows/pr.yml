@@ -53,3 +53,10 @@ jobs:
           ./gradlew clean assembleDefaultDebug testDefaultDebugUnitTest --no-daemon
           apks=$(find app/build/outputs \( -name '*.apk' -or -name '*.aab' \) -print0 | tr '\0' ',' | sed 's/,$//')
           echo "apks=$apks" >> "$GITHUB_OUTPUT"
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: wholphin-adaptive-upscaling-debug
+          path: app/build/outputs/apk/default/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
